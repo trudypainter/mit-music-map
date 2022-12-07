@@ -76,11 +76,54 @@ let zVehicles = [];
 let infiniteVehicles = [];
 let haydenVehicles = [];
 
+// img
+let zImg;
+let haydenImg;
+let infiniteImg;
+let imgHeight = 200;
+
 let allPaths = [
-  [zPath, zVehicles, zPoints, zCenterSongs],
-  [infinitePath, infiniteVehicles, infinitePoints, infiniteSongs],
-  [haydenPath, haydenVehicles, haydenPoints, haydenSongs],
+  [zPath, zVehicles, zPoints, zCenterSongs, "Z Center"],
+  [
+    infinitePath,
+    infiniteVehicles,
+    infinitePoints,
+    infiniteSongs,
+    "Infinite Corridor",
+  ],
+  [haydenPath, haydenVehicles, haydenPoints, haydenSongs, "Hayden Library"],
 ];
+
+function preload() {
+  zImg = loadImage("/blobs/Z.svg");
+  zPath.addImg(zImg, imgHeight);
+  zPath.addTitle("Z Center");
+  allPaths[0].push("/charts/z.png");
+
+  haydenImg = loadImage("/blobs/Hayden.svg");
+  haydenPath.addImg(haydenImg, imgHeight);
+  haydenPath.addTitle("Hayden Library");
+  allPaths[2].push("/charts/hayden.png");
+
+  infiniteImg = loadImage("/blobs/Infinite.svg");
+  infinitePath.addImg(infiniteImg, imgHeight);
+  infinitePath.addTitle("Infinite Corridor");
+  allPaths[1].push("/charts/infinite.png");
+
+  fetch("./songs/zcenter.json")
+    .then((response) => response.json())
+    .then((json) => {
+      zCenterSongs = json;
+    });
+
+  fetch("./songs/infinite.json")
+    .then((response) => response.json())
+    .then((json) => (infiniteSongs = json));
+
+  fetch("./songs/hayden.json")
+    .then((response) => response.json())
+    .then((json) => (haydenSongs = json));
+}
 
 function setup() {
   allPaths[0][3] = zCenterSongs;
@@ -91,7 +134,7 @@ function setup() {
 
   // Call a function to generate new Path object
   for (let pathInfo of allPaths) {
-    newPath(pathInfo[0], pathInfo[2]);
+    newPath(pathInfo[0], pathInfo[2], pathInfo[4]);
 
     // We are now making random vehicles and storing them in an ArrayList
     for (let song of pathInfo[3]) {
@@ -99,7 +142,6 @@ function setup() {
     }
   }
 }
-
 function draw() {
   background(255);
   // Display the path
@@ -113,13 +155,58 @@ function draw() {
       // Call the generic run method (update, borders, display, etc.)
       v.run();
     }
+    fill(120);
+    textAlign(CENTER);
+    textSize(18);
+    text(
+      path[4],
+      path[2][0][0] + imgHeight / 2,
+      path[2][0][1] + imgHeight + 30
+    );
+
+    button = createButton("Show Info");
+    button.position(path[2][0][0], path[2][0][1] + imgHeight + 40);
+
+    let message =
+      "<br />" + path[4] + " music response data. <br /><br /><br />";
+    button.mousePressed(() => updateModal(path[5], message));
   }
 }
 
-function newPath(pathPassed, points) {
-  // A path is a series of connected points
-  // A more sophisticated path might be a curve
+function mousePressed() {
+  console.log("pressed");
+  console.log(mouseX, mouseY);
 
+  for (let v of zVehicles) {
+    v.updateModalCheck(mouseX, mouseY);
+  }
+  for (let v of haydenVehicles) {
+    v.updateModalCheck(mouseX, mouseY);
+  }
+  for (let v of infiniteVehicles) {
+    v.updateModalCheck(mouseX, mouseY);
+  }
+}
+
+function updateModal(imgUrl, message) {
+  // set img
+  var img = document.getElementById("modal-img");
+  img.src = imgUrl;
+
+  // set body text
+  var body = document.getElementById("modal-title");
+  body.innerHTML = message;
+
+  // set modal to visible
+  var x = document.getElementById("modal");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+function newPath(pathPassed, points, img) {
   for (let point of points) {
     pathPassed.addPoint(point[0], point[1]);
   }
@@ -129,10 +216,4 @@ function newVehicle(x, y, vehicleList, song) {
   let maxspeed = random(1, 2);
   let maxforce = 0.3;
   vehicleList.push(new Vehicle(x, y, maxspeed, maxforce, song));
-}
-
-function keyPressed() {
-  if (key == "d") {
-    debug = !debug;
-  }
 }

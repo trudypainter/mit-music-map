@@ -13,5 +13,53 @@
     <script src="vehicle.js"></script>
     <script src="path.js"></script>
     <script src="sketch.js"></script>
+
+    <script>
+      function closeModal() {
+        var x = document.getElementById("modal");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
+    </script>
+
+    <div id="title">
+      <h1>MIT MUSIC MAP</h1>
+      <a
+        href="https://docs.google.com/presentation/d/1snd0j-imoHTnuuwPx1lrbTOi2aXeHt87-wZmgVKyF74/edit#slide=id.g1ab34e4b450_0_0"
+        >Info about project</a
+      >
+      <br />
+      <a
+        href="https://docs.google.com/presentation/d/13Ty78A5gwpHMyHom2JCfScMF06E-XGE9FXsTzmNKXwY/edit?usp=sharing"
+        >Info about auras</a
+      >
+    </div>
+    <div id="modal">
+      <img src="initmap.jpeg" id="modal-img" />
+      <div id="modal-title">
+        Welcome to the MIT Music Map. This was a project for
+        <a href="https://cms405.github.io/">CMS.405(Visual Design)</a>.
+
+        <br />
+        <br />
+        We surveyed MIT students about where they listen to music on campus.
+        This site is a representation of those results.
+        <br />
+        <br />
+        Hover over dots to play music.
+        <br />
+        <br />
+        Click on dots for more song information.
+        <br />
+        <br />
+        Click on locations to see aggregate analysis.
+        <br />
+        <br />
+      </div>
+      <a id="modal-close" onclick="closeModal()">Close</a>
+    </div>
   </body>
 </html>

@@ -22,6 +22,7 @@ class Vehicle {
     this.over = false;
     this.songTitle = song["Track Name"] + " by \n" + song["Artist Name(s)"];
     this.sound = new Audio(song["Track Preview URL"]);
+    this.song = song;
   }
 
   mouseMoved() {
@@ -34,6 +35,47 @@ class Vehicle {
       this.over = true;
     } else {
       this.over = false;
+    }
+  }
+
+  updateModalCheck(mouseX, mouseY) {
+    if (
+      mouseX > this.position.x - this.r &&
+      mouseX < this.position.x + this.r &&
+      mouseY > this.position.y - this.r &&
+      mouseY < this.position.y + this.r
+    ) {
+      console.log("INSIDE");
+      this.updateModal();
+    }
+  }
+
+  updateModal() {
+    // set img
+    var img = document.getElementById("modal-img");
+    img.src = this.song["Album Image URL"];
+
+    // set body text
+    let uri = this.song["Track URI"].substring(
+      this.song["Track URI"].length - 22
+    );
+    console.log(uri);
+    let message =
+      this.song["Track Name"] +
+      " by " +
+      this.song["Artist Name(s)"] +
+      '<br />  <a target="_blank" href="https://open.spotify.com/track/' +
+      uri +
+      '">View on Spotify</a>   ';
+    var body = document.getElementById("modal-title");
+    body.innerHTML = message;
+
+    // set modal to visible
+    var x = document.getElementById("modal");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
     }
   }
 

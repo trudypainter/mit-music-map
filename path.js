@@ -14,6 +14,9 @@ class Path {
     this.radius = 120;
     // A Path is an arraylist of points (PVector objects)
     this.points = [];
+    this.img = null;
+    this.title = "";
+    this.imgHeight = 200;
   }
 
   // Add a point to the path
@@ -22,8 +25,25 @@ class Path {
     this.points.push(point);
   }
 
+  addImg(img, imgHeight) {
+    this.img = img;
+    this.imgHeight = imgHeight;
+  }
+
+  addTitle(title) {
+    this.title = title;
+  }
+
   // Draw the path
   display() {
+    image(
+      this.img,
+      this.points[0].x,
+      this.points[0].y,
+      this.imgHeight,
+      this.imgHeight
+    );
+
     strokeJoin(ROUND);
 
     // Draw thick line for radius
@@ -37,7 +57,7 @@ class Path {
     // endShape(CLOSE);
     // Draw thin line for center of path
     stroke(240);
-    strokeWeight(1);
+    strokeWeight(0);
     noFill();
     beginShape();
     for (let v of this.points) {
