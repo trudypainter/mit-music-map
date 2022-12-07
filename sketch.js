@@ -15,25 +15,31 @@ let debug = false;
 
 // fetch the playlist songs
 let zCenterSongs;
-fetch("./songs/zcenter.json")
-  .then((response) => response.json())
-  .then((json) => {
-    zCenterSongs = json;
-  });
-
 let infiniteSongs;
-fetch("./songs/infinite.json")
-  .then((response) => response.json())
-  .then((json) => (infiniteSongs = json));
-
 let haydenSongs;
-fetch("./songs/hayden.json")
-  .then((response) => response.json())
-  .then((json) => (haydenSongs = json));
+
+async function getSongData() {
+  let response = await fetch("./songs/zcenter.json");
+  let json = await response.json();
+  zCenterSongs = json;
+
+  response = await fetch("./songs/infinite.json");
+  json = await response.json();
+  infiniteSongs = json;
+
+  response = await fetch("./songs/hayden.json");
+  json = await response.json();
+  haydenSongs = json;
+
+  console.log("finished await");
+  loaded = true;
+}
 
 // set box params
 let offset = 140;
 let boxLength = 120;
+
+let loaded = false;
 
 // A path object (series of connected points)
 let zPath = new Path();
@@ -94,21 +100,24 @@ let allPaths = [
   [haydenPath, haydenVehicles, haydenPoints, haydenSongs, "Hayden Library"],
 ];
 
-function preload() {
-  zImg = loadImage("/blobs/Z.svg");
+async function preload() {
+  await getSongData();
+  console.log("in preload after song data");
+
+  zImg = loadImage("./blobs/Z.svg");
   zPath.addImg(zImg, imgHeight);
   zPath.addTitle("Z Center");
-  allPaths[0].push("/charts/z.png");
+  allPaths[0].push("./charts/z.png");
 
-  haydenImg = loadImage("/blobs/Hayden.svg");
+  haydenImg = loadImage("./blobs/Hayden.svg");
   haydenPath.addImg(haydenImg, imgHeight);
   haydenPath.addTitle("Hayden Library");
-  allPaths[2].push("/charts/hayden.png");
+  allPaths[2].push("./charts/hayden.png");
 
-  infiniteImg = loadImage("/blobs/Infinite.svg");
+  infiniteImg = loadImage("./blobs/Infinite.svg");
   infinitePath.addImg(infiniteImg, imgHeight);
   infinitePath.addTitle("Infinite Corridor");
-  allPaths[1].push("/charts/infinite.png");
+  allPaths[1].push("./charts/infinite.png");
 
   fetch("./songs/zcenter.json")
     .then((response) => response.json())
@@ -125,17 +134,47 @@ function preload() {
     .then((json) => (haydenSongs = json));
 }
 
-function setup() {
+async function setup() {
+  await getSongData();
+  console.log("in preload after song data");
+
+  zImg = loadImage("./blobs/Z.svg");
+  zPath.addImg(zImg, imgHeight);
+  zPath.addTitle("Z Center");
+  allPaths[0].push("./charts/z.png");
+
+  haydenImg = loadImage("./blobs/Hayden.svg");
+  haydenPath.addImg(haydenImg, imgHeight);
+  haydenPath.addTitle("Hayden Library");
+  allPaths[2].push("./charts/hayden.png");
+
+  infiniteImg = loadImage("./blobs/Infinite.svg");
+  infinitePath.addImg(infiniteImg, imgHeight);
+  infinitePath.addTitle("Infinite Corridor");
+  allPaths[1].push("./charts/infinite.png");
+
+  fetch("./songs/zcenter.json")
+    .then((response) => response.json())
+    .then((json) => {
+      zCenterSongs = json;
+    });
+
+  fetch("./songs/infinite.json")
+    .then((response) => response.json())
+    .then((json) => (infiniteSongs = json));
+
+  fetch("./songs/hayden.json")
+    .then((response) => response.json())
+    .then((json) => (haydenSongs = json));
+
+  console.log("adding paths");
   allPaths[0][3] = zCenterSongs;
   allPaths[1][3] = infiniteSongs;
   allPaths[2][3] = haydenSongs;
-
   createCanvas(window.innerWidth, window.innerHeight);
-
   // Call a function to generate new Path object
   for (let pathInfo of allPaths) {
     newPath(pathInfo[0], pathInfo[2], pathInfo[4]);
-
     // We are now making random vehicles and storing them in an ArrayList
     for (let song of pathInfo[3]) {
       newVehicle(random(width), random(height), pathInfo[1], song);
@@ -143,33 +182,35 @@ function setup() {
   }
 }
 function draw() {
-  background(255);
-  // Display the path
+  if (loaded) {
+    background(255);
+    // Display the path
 
-  for (let path of allPaths) {
-    path[0].display();
+    for (let path of allPaths) {
+      path[0].display();
 
-    for (let v of path[1]) {
-      // Path following and separation are worked on in this function
-      v.applyBehaviors(path[1], path[0]);
-      // Call the generic run method (update, borders, display, etc.)
-      v.run();
+      for (let v of path[1]) {
+        // Path following and separation are worked on in this function
+        v.applyBehaviors(path[1], path[0]);
+        // Call the generic run method (update, borders, display, etc.)
+        v.run();
+      }
+      fill(120);
+      textAlign(CENTER);
+      textSize(18);
+      text(
+        path[4],
+        path[2][0][0] + imgHeight / 2,
+        path[2][0][1] + imgHeight + 30
+      );
+
+      button = createButton("Show Info");
+      button.position(path[2][0][0], path[2][0][1] + imgHeight + 40);
+
+      let message =
+        "<br />" + path[4] + " music response data. <br /><br /><br />";
+      button.mousePressed(() => updateModal(path[5], message));
     }
-    fill(120);
-    textAlign(CENTER);
-    textSize(18);
-    text(
-      path[4],
-      path[2][0][0] + imgHeight / 2,
-      path[2][0][1] + imgHeight + 30
-    );
-
-    button = createButton("Show Info");
-    button.position(path[2][0][0], path[2][0][1] + imgHeight + 40);
-
-    let message =
-      "<br />" + path[4] + " music response data. <br /><br /><br />";
-    button.mousePressed(() => updateModal(path[5], message));
   }
 }
 
